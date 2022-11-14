@@ -33,14 +33,27 @@ app.post('/github-webhook', async (req, res) => {
       "steps": [
         {
           name: 'gcr.io/cloud-builders/git',
-          args: [ 'clone', repository.clone_url ]
+          secretEnv: [ 'SSH_KEY' ],
+          entrypoint: 'bash',
+          args: [ '-c', 'echo "$$SSH_KEY" >> /root/.ssh/id_rsa && chmod 400 /root/.ssh/id_rsa && ssh-keyscan -t rsa github.com >> /root/.ssh/known_hosts' ],
+          volumes: [{
+            name: 'ssh',
+            path: '/root/.ssh'
+          }]
+        },
+        {
+          name: 'gcr.io/cloud-builders/git',
+          args: [ 'clone', repository.ssh_url ],
+          volumes: [{
+            name: 'ssh',
+            path: '/root/.ssh'
+          }]
         },
         {
           name: 'gcr.io/cloud-builders/docker',
           args: [
             'build',
             '-t', `${ config.region }-docker.pkg.dev/${ projectId }/${ registry }/${ repository.name }:${ commit.id }`,
-            '-t', `${ config.region }-docker.pkg.dev/${ projectId }/${ registry }/${ repository.name }:latest`,
             '-f', `${ repository.name }/Dockerfile`,
             repository.name
           ]
@@ -48,10 +61,6 @@ app.post('/github-webhook', async (req, res) => {
         {
           name: 'gcr.io/cloud-builders/docker',
           args: [ 'push', `${ config.region }-docker.pkg.dev/${ projectId }/${ registry }/${ repository.name }:${ commit.id }` ]
-        },
-        {
-          name: 'gcr.io/cloud-builders/docker',
-          args: [ 'push', `${ config.region }-docker.pkg.dev/${ projectId }/${ registry }/${ repository.name }:latest` ]
         },
         {
           name: 'gcr.io/cloud-builders/gcloud',
@@ -70,7 +79,13 @@ app.post('/github-webhook', async (req, res) => {
             '--service-account', config['service-account']
           ]
         }
-      ]
+      ],
+      availableSecrets: {
+        secretManager: [{
+          versionName: 'projects/220251834863/secrets/ssh_github/versions/latest',
+          env: 'SSH_KEY'
+        }]
+      }
     }
   };
 
