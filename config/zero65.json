@@ -1,0 +1,15 @@
+{
+
+  "Zero65Tech/gcloud": {
+
+    "build": [
+      { "region":"asia-southeast1", "registry":"docker" }
+    ],
+
+    "run": [
+      { "region":"asia-southeast1", "name":"gcloud", "service-account":"gcloud@zero65.iam.gserviceaccount.com" }
+    ]
+
+  }
+  
+}
