@@ -17,8 +17,14 @@
 
   },
 
+  "hello-nodejs": {
+    "max-instances": "1"
+  },
+
   "gcloud": {
     "service-account" : "gcloud@zero65.iam.gserviceaccount.com"
-  }
+  },
+
+  "gateway": {}
 
 }
