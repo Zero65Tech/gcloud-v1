@@ -5,10 +5,11 @@
   "main": "src/index.js",
   "scripts": {
     "start": "NODE_ENV=prod node src/index.js",
-    "test": "NODE_ENV=test nodemon src/index.js"
+    "test": "NODE_ENV=test GOOGLE_APPLICATION_CREDENTIALS=zero65-c060261fd299.json nodemon src/index.js"
   },
   "author": "Zero65 Technologies Pvt. Ltd.",
   "dependencies": {
+    "@google-cloud/cloudbuild": "^3.2.0",
     "express": "^4.16.4"
   },
   "devDependencies": {
