@@ -1,7 +1,7 @@
 {
-  "name": "hello-nodejs",
+  "name": "gcloud",
   "version": "1.0.0",
-  "description": "Hello NodeJs Service",
+  "description": "Google Cloud Service",
   "main": "src/index.js",
   "scripts": {
     "start": "NODE_ENV=prod node src/index.js",
