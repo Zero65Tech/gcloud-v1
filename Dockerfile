@@ -7,4 +7,4 @@ RUN npm install --only=production
 
 COPY src src
 
-CMD [ "npm", "start" ]
+CMD [ "npm", "start" ] 
