@@ -12,7 +12,7 @@
     "@google-cloud/cloudbuild": "^3.2.0",
     "express": "^4.16.4"
   },
-  "devDependencies": {
+  "devDependencies": { 
     "nodemon": "^2.0.4"
   },
   "nodemonConfig": {
