@@ -25,6 +25,14 @@
     "service-account" : "gcloud@zero65.iam.gserviceaccount.com"
   },
 
-  "gateway": {}
+  "gateway": {},
+
+  "market": {
+    "memory" : "1Gi"
+  },
+
+  "amc": {},
+
+  "zerodha": {}
 
 }
