@@ -82,7 +82,7 @@ app.post('/github-webhook', async (req, res) => {
       ],
       availableSecrets: {
         secretManager: [{
-          versionName: 'projects/220251834863/secrets/ssh_github/versions/latest',
+          versionName: 'projects/220251834863/secrets/SSH_KEY/versions/latest',
           env: 'SSH_KEY'
         }]
       }
