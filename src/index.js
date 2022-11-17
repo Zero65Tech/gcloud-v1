@@ -43,19 +43,25 @@ app.post('/github-webhook', async (req, res) => {
         },
         {
           name: 'gcr.io/cloud-builders/git',
-          args: [ 'clone', repository.ssh_url ],
+          args: [ 'clone', repository.ssh_url, '.' ],
           volumes: [{
             name: 'ssh',
             path: '/root/.ssh'
           }]
         },
         {
+          name: 'gcr.io/cloud-builders/git',
+          secretEnv: [ 'NPMRC' ],
+          entrypoint: 'bash',
+          args: [ '-c', 'echo "$$NPMRC" >> .npmrc' ]
+        },
+        {
           name: 'gcr.io/cloud-builders/docker',
           args: [
             'build',
             '-t', `${ config.region }-docker.pkg.dev/${ projectId }/${ registry }/${ repository.name }:${ commit.id }`,
-            '-f', `${ repository.name }/Dockerfile`,
-            repository.name
+            '-f', `Dockerfile`,
+            '.'
           ]
         },
         {
@@ -84,6 +90,9 @@ app.post('/github-webhook', async (req, res) => {
         secretManager: [{
           versionName: 'projects/220251834863/secrets/SSH_KEY/versions/latest',
           env: 'SSH_KEY'
+        },{
+          versionName: 'projects/220251834863/secrets/NPMRC/versions/latest',
+          env: 'NPMRC'
         }]
       }
     }
