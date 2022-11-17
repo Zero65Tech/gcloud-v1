@@ -25,7 +25,9 @@
     "service-account" : "gcloud@zero65.iam.gserviceaccount.com"
   },
 
-  "gateway": {},
+  "gateway": {
+    "memory" : "256Mi"
+  },
 
   "market": {
     "memory" : "1Gi"
