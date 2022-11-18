@@ -27,6 +27,9 @@ app.post('/github-webhook', async (req, res) => {
     return res.send('No action required !');
   config = { ...ConfigRun.default, ...config }
 
+  if(commit.author.email == 'google-cloud-build@zero65.in')
+    return res.send('No action required !');
+
   const request = {
     projectId: projectId,
     build: {
