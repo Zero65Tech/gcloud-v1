@@ -53,10 +53,14 @@ app.post('/github-webhook', async (req, res) => {
           }]
         },
         {
+          name: 'gcr.io/cloud-builders/npm',
+          entrypoint: 'npx',
+          args: [ 'google-artifactregistry-auth' ]
+        },
+        {
           name: 'gcr.io/cloud-builders/git',
-          secretEnv: [ 'NPMRC' ],
           entrypoint: 'bash',
-          args: [ '-c', 'echo "$$NPMRC" >> .npmrc' ]
+          args: [ '-c', 'echo "\n" >> .npmrc && cat ~/.npmrc >> .npmrc' ]
         },
         {
           name: 'gcr.io/cloud-builders/docker',
@@ -93,9 +97,6 @@ app.post('/github-webhook', async (req, res) => {
         secretManager: [{
           versionName: 'projects/zero65/secrets/SSH_KEY/versions/latest',
           env: 'SSH_KEY'
-        },{
-          versionName: 'projects/zero65/secrets/NPMRC/versions/latest',
-          env: 'NPMRC'
         }]
       }
     }
