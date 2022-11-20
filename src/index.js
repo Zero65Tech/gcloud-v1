@@ -53,6 +53,11 @@ app.post('/github-webhook', async (req, res) => {
           }]
         },
         {
+          name: 'gcr.io/cloud-builders/gcloud',
+          entrypoint: 'bash',
+          args: [ '-c', 'echo "\n" >> .npmrc && gcloud artifacts print-settings npm --project=zero65 --repository=npm --location=asia-southeast1 --scope=@zero65 >> .npmrc' ]
+        },
+        {
           name: 'gcr.io/cloud-builders/npm',
           entrypoint: 'npx',
           args: [ 'google-artifactregistry-auth' ]
