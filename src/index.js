@@ -7,7 +7,7 @@ app.use(express.json());
 
 const CloudBuild = new CloudBuildClient();
 
-const ConfigRun = require('../config/run.json');
+const ConfigRun = require('./config').run;
 
 
 
