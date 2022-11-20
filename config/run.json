@@ -37,6 +37,8 @@
 
   "zerodha": {},
 
-  "invest": {}
+  "invest": {
+    "memory" : "256Mi"
+  }
 
 }
