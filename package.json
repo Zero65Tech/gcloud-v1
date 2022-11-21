@@ -1,6 +1,6 @@
 {
   "name": "gcloud",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Google Cloud Service",
   "main": "src/index.js",
   "scripts": {
@@ -10,7 +10,7 @@
   "author": "Zero65 Technologies Pvt. Ltd.",
   "dependencies": {
     "@google-cloud/cloudbuild": "^3.2.0",
-    "@zero65/config": "^1.0.1",
+    "@zero65/config": "^1.0.5",
     "@zero65/utils": "^2.0.12",
     "express": "^4.18.2"
   },
