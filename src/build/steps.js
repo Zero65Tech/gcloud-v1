@@ -25,7 +25,7 @@ exports.gitClonePrivate = (repositorySshUrl, sshKeySecretEnv='SSH_KEY', host='gi
 
 exports.artifactsNpm = (project='zero65', repository='npm', location='asia-southeast1', scope='@zero65') => {
   return [{
-    id: 'Artifacts npm (1/1)',
+    id: 'Artifacts npm (1/2)',
     name: 'gcr.io/cloud-builders/gcloud',
     script: `
       gcloud artifacts print-settings npm \
@@ -35,8 +35,12 @@ exports.artifactsNpm = (project='zero65', repository='npm', location='asia-south
         --scope=${ scope } > .npmrc
     `
   }, {
-    id: 'Artifacts npm (1/2)',
+    id: 'Artifacts npm (2/2)',
     name: 'gcr.io/cloud-builders/npm',
-    script: 'npx google-artifactregistry-auth'
+    script: `
+      npx google-artifactregistry-auth
+      echo "\n" >> .npmrc
+      cat ~/.npmrc >> .npmrc
+    `
   }];
 }

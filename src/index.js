@@ -38,11 +38,6 @@ app.post('/github-webhook', async (req, res) => {
       .concat(BuildSteps.artifactsNpm())
       .concat([
         {
-          name: 'gcr.io/cloud-builders/git',
-          entrypoint: 'bash',
-          args: [ '-c', 'echo "\n" >> .npmrc && cat ~/.npmrc >> .npmrc' ]
-        },
-        {
           name: 'gcr.io/cloud-builders/docker',
           args: [
             'build',
