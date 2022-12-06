@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "ENV=prod node src/index.js",
-    "test": "ENV=test GOOGLE_APPLICATION_CREDENTIALS=zero65-c060261fd299.json nodemon src/index.js"
+    "test": "ENV=test nodemon src/index.js"
   },
   "author": "Zero65 Technologies Pvt. Ltd.",
   "dependencies": {

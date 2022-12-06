@@ -8,6 +8,7 @@ app.use(express.json());
 const CloudBuild = new CloudBuildClient();
 
 const ConfigRun = require('./config').run;
+const BuildSteps = require('./build/steps');
 
 
 
@@ -33,25 +34,7 @@ app.post('/github-webhook', async (req, res) => {
   const request = {
     projectId: projectId,
     build: {
-      "steps": [
-        {
-          name: 'gcr.io/cloud-builders/git',
-          secretEnv: [ 'SSH_KEY' ],
-          entrypoint: 'bash',
-          args: [ '-c', 'echo "$$SSH_KEY" >> /root/.ssh/id_rsa && chmod 400 /root/.ssh/id_rsa && ssh-keyscan -t rsa github.com >> /root/.ssh/known_hosts' ],
-          volumes: [{
-            name: 'ssh',
-            path: '/root/.ssh'
-          }]
-        },
-        {
-          name: 'gcr.io/cloud-builders/git',
-          args: [ 'clone', repository.ssh_url, '.' ],
-          volumes: [{
-            name: 'ssh',
-            path: '/root/.ssh'
-          }]
-        },
+      "steps": BuildSteps.gitClonePrivate('git@github.com:Zero65Tech/gcloud.git').concat([
         {
           name: 'gcr.io/cloud-builders/gcloud',
           entrypoint: 'bash',
@@ -97,7 +80,7 @@ app.post('/github-webhook', async (req, res) => {
             '--service-account', config['service-account']
           ]
         }
-      ],
+      ]),
       availableSecrets: {
         secretManager: [{
           versionName: 'projects/zero65/secrets/SSH_KEY/versions/latest',
