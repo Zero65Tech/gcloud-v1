@@ -34,17 +34,9 @@ app.post('/github-webhook', async (req, res) => {
   const request = {
     projectId: projectId,
     build: {
-      "steps": BuildSteps.gitClonePrivate('git@github.com:Zero65Tech/gcloud.git').concat([
-        {
-          name: 'gcr.io/cloud-builders/gcloud',
-          entrypoint: 'bash',
-          args: [ '-c', 'touch .npmrc && echo "\n" >> .npmrc && gcloud artifacts print-settings npm --project=zero65 --repository=npm --location=asia-southeast1 --scope=@zero65 >> .npmrc' ]
-        },
-        {
-          name: 'gcr.io/cloud-builders/npm',
-          entrypoint: 'npx',
-          args: [ 'google-artifactregistry-auth' ]
-        },
+      "steps": BuildSteps.gitClonePrivate('git@github.com:Zero65Tech/gcloud.git')
+      .concat(BuildSteps.artifactsNpm())
+      .concat([
         {
           name: 'gcr.io/cloud-builders/git',
           entrypoint: 'bash',
