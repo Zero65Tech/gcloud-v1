@@ -34,40 +34,12 @@ app.post('/github-webhook', async (req, res) => {
   const request = {
     projectId: projectId,
     build: {
-      "steps": BuildSteps.gitClonePrivate('git@github.com:Zero65Tech/gcloud.git')
-      .concat(BuildSteps.artifactsNpm())
-      .concat([
-        {
-          name: 'gcr.io/cloud-builders/docker',
-          args: [
-            'build',
-            '-t', `${ config.region }-docker.pkg.dev/${ projectId }/${ registry }/${ repository.name }:${ commit.id }`,
-            '-f', `Dockerfile`,
-            '.'
-          ]
-        },
-        {
-          name: 'gcr.io/cloud-builders/docker',
-          args: [ 'push', `${ config.region }-docker.pkg.dev/${ projectId }/${ registry }/${ repository.name }:${ commit.id }` ]
-        },
-        {
-          name: 'gcr.io/cloud-builders/gcloud',
-          args: [
-            'run', 'deploy', repository.name,
-            '--image', `${ config.region }-docker.pkg.dev/${ projectId }/${ registry }/${ repository.name }:${ commit.id }`,
-            '--region',   config['region'],
-            '--platform', config['platform'],
-            '--port',     config['port'],
-            '--memory',   config['memory'],
-            '--cpu',      config['cpu'],
-            '--timeout',       config['timeout'],
-            '--concurrency',   config['concurrency'],
-            '--min-instances', config['min-instances'],
-            '--max-instances', config['max-instances'],
-            '--service-account', config['service-account']
-          ]
-        }
-      ]),
+      "steps":
+      BuildSteps.gitClonePrivate('git@github.com:Zero65Tech/gcloud.git')
+        .concat(BuildSteps.artifactsNpm())
+        .concat(BuildSteps.buildDocker(`${ config.region }-docker.pkg.dev/${ projectId }/${ registry }/${ repository.name }:${ commit.id }`))
+        .concat(BuildSteps.deployRun(repository.name, `${ config.region }-docker.pkg.dev/${ projectId }/${ registry }/${ repository.name }:${ commit.id }`, config))
+      ,
       availableSecrets: {
         secretManager: [{
           versionName: 'projects/zero65/secrets/SSH_KEY/versions/latest',

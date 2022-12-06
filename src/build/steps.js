@@ -12,7 +12,7 @@ exports.gitClonePrivate = (repositorySshUrl, sshKeySecretEnv='SSH_KEY', host='gi
       name: 'ssh',
       path: '/root/.ssh'
     }]
-  }, {
+  },{
     id: 'Git Clone Private (2/2)',
     name: 'gcr.io/cloud-builders/git',
     args: [ 'clone', '--depth', 1, '--single-branch', repositorySshUrl, '.' ],
@@ -34,7 +34,7 @@ exports.artifactsNpm = (project='zero65', repository='npm', location='asia-south
         --location=${ location } \
         --scope=${ scope } > .npmrc
     `
-  }, {
+  },{
     id: 'Artifacts npm (2/2)',
     name: 'gcr.io/cloud-builders/npm',
     script: `
@@ -42,5 +42,38 @@ exports.artifactsNpm = (project='zero65', repository='npm', location='asia-south
       echo "\n" >> .npmrc
       cat ~/.npmrc >> .npmrc
     `
+  }];
+}
+
+exports.buildDocker = (tag) => {
+  return [{
+    id: 'Docker Build (1/2)',
+    name: 'gcr.io/cloud-builders/docker',
+    args: [ 'build', '-t', tag, '-f', `Dockerfile`, '.' ]
+  },{
+    id: 'Docker Build (2/2)',
+    name: 'gcr.io/cloud-builders/docker',
+    args: [ 'push', tag ]
+  }];
+}
+
+exports.deployRun = (serviceName, dockerImage, runConfig) => {
+  return [{
+    id: 'Run Deploy',
+    name: 'gcr.io/cloud-builders/gcloud',
+    args: [
+      'run', 'deploy', serviceName,
+      '--image', dockerImage,
+      '--region',   runConfig['region'],
+      '--platform', runConfig['platform'],
+      '--port',     runConfig['port'],
+      '--memory',   runConfig['memory'],
+      '--cpu',      runConfig['cpu'],
+      '--timeout',       runConfig['timeout'],
+      '--concurrency',   runConfig['concurrency'],
+      '--min-instances', runConfig['min-instances'],
+      '--max-instances', runConfig['max-instances'],
+      '--service-account', runConfig['service-account']
+    ]
   }];
 }
