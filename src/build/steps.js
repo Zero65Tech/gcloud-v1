@@ -23,15 +23,15 @@ exports.gitClonePrivate = (repositorySshUrl, sshKeySecretEnv='SSH_KEY', host='gi
   }];
 }
 
-exports.artifactsNpm = (project='zero65', repository='npm', location='asia-southeast1', scope='@zero65') => {
+exports.artifactsNpm = (scope='@zero65', config) => {
   return [{
     id: 'Artifacts npm (1/2)',
     name: 'gcr.io/cloud-builders/gcloud',
     script: `
       gcloud artifacts print-settings npm \
-        --project=${ project } \
-        --repository=${ repository } \
-        --location=${ location } \
+        --project=${ config.project } \
+        --repository=${ config.repository } \
+        --location=${ config.region } \
         --scope=${ scope } > .npmrc
     `
   },{
@@ -45,7 +45,8 @@ exports.artifactsNpm = (project='zero65', repository='npm', location='asia-south
   }];
 }
 
-exports.buildDocker = (tag) => {
+exports.buildDocker = (dockerRepo) => {
+  let tag = `${ dockerRepo.region }-docker.pkg.dev/${ dockerRepo.projectId }/${ dockerRepo.repository }/${ dockerRepo.name }:${ dockerRepo.tag }`;
   return [{
     id: 'Docker Build (1/2)',
     name: 'gcr.io/cloud-builders/docker',
@@ -57,23 +58,23 @@ exports.buildDocker = (tag) => {
   }];
 }
 
-exports.deployRun = (serviceName, dockerImage, runConfig) => {
+exports.deployRun = (serviceName, dockerRepo, config) => {
   return [{
     id: 'Run Deploy',
     name: 'gcr.io/cloud-builders/gcloud',
     args: [
       'run', 'deploy', serviceName,
-      '--image', dockerImage,
-      '--region',   runConfig['region'],
-      '--platform', runConfig['platform'],
-      '--port',     runConfig['port'],
-      '--memory',   runConfig['memory'],
-      '--cpu',      runConfig['cpu'],
-      '--timeout',       runConfig['timeout'],
-      '--concurrency',   runConfig['concurrency'],
-      '--min-instances', runConfig['min-instances'],
-      '--max-instances', runConfig['max-instances'],
-      '--service-account', runConfig['service-account']
+      '--image', `${ dockerRepo.region }-docker.pkg.dev/${ dockerRepo.projectId }/${ dockerRepo.repository }/${ dockerRepo.name }:${ dockerRepo.tag }`,
+      '--region',   config['region'],
+      '--platform', config['platform'],
+      '--port',     config['port'],
+      '--memory',   config['memory'],
+      '--cpu',      config['cpu'],
+      '--timeout',       config['timeout'],
+      '--concurrency',   config['concurrency'],
+      '--min-instances', config['min-instances'],
+      '--max-instances', config['max-instances'],
+      '--service-account', config['service-account']
     ]
   }];
 }

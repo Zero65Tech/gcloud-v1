@@ -7,7 +7,7 @@ app.use(express.json());
 
 const CloudBuild = new CloudBuildClient();
 
-const ConfigRun = require('./config').run;
+const Config = require('./config');
 const BuildSteps = require('./build/steps');
 
 
@@ -18,27 +18,32 @@ app.get('/', async (req, res) => {
 
 app.post('/github-webhook', async (req, res) => {
 
-  let projectId  = 'zero65';
-  let registry   = 'docker';
-  let repository = req.body.repository;
-  let commit     = req.body.head_commit;
-
-  let config = ConfigRun[repository.name];
-  if(!config)
-    return res.send('No action required !');
-  config = { ...ConfigRun.default, ...config }
-
+  let commit = req.body.head_commit;
   if(commit.author.email == 'google-cloud-build@zero65.in')
     return res.send('No action required !');
 
+  let repository = req.body.repository;
+  let name = repository.name;
+  if(!Config.run[name]) // TODO: Use build config instead
+    return res.send('No action required !');
+
+  let npmRepo     = { ...Config.artifacts.npm['default'],    ...(Config.artifacts.npm['@zero65'] || {}) };
+  let dockerRepo  = { ...Config.artifacts.docker['default'], ...(Config.artifacts.docker[name]   || {}) };
+  let buildConfig = { ...Config.build['default'],            ...(Config.build[name]              || {}) };
+  let runConfig   = { ...Config.run['default'],              ...(Config.run[name]                || {}) };
+
+  dockerRepo.name = dockerRepo.name || name;
+  dockerRepo.tag  = dockerRepo.tag  || commit.id;
+
+  // TODO: process nested fields in build config
+
   const request = {
-    projectId: projectId,
+    projectId: buildConfig.projectId,
     build: {
-      "steps":
-      BuildSteps.gitClonePrivate('git@github.com:Zero65Tech/gcloud.git')
-        .concat(BuildSteps.artifactsNpm())
-        .concat(BuildSteps.buildDocker(`${ config.region }-docker.pkg.dev/${ projectId }/${ registry }/${ repository.name }:${ commit.id }`))
-        .concat(BuildSteps.deployRun(repository.name, `${ config.region }-docker.pkg.dev/${ projectId }/${ registry }/${ repository.name }:${ commit.id }`, config))
+      steps: BuildSteps.gitClonePrivate('git@github.com:Zero65Tech/gcloud.git')
+        .concat(BuildSteps.artifactsNpm('@zero65', npmRepo))
+        .concat(BuildSteps.buildDocker(dockerRepo))
+        .concat(BuildSteps.deployRun(name, dockerRepo, runConfig))
       ,
       availableSecrets: {
         secretManager: [{

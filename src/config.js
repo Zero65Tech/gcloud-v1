@@ -78,7 +78,7 @@ try {
       },
       docker: { file: "node-18-slim", name: undefined, tag: undefined },
       deploy: [
-        [ type: "run", name: undefined, auto: true ]
+        { type: "run", name: undefined, auto: true }
       ]
     },
 
