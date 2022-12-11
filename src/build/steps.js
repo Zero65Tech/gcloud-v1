@@ -46,7 +46,7 @@ exports.artifactsNpm = (scope='@zero65', config) => {
 }
 
 exports.buildDocker = (dockerRepo) => {
-  let tag = `${ dockerRepo.region }-docker.pkg.dev/${ dockerRepo.projectId }/${ dockerRepo.repository }/${ dockerRepo.name }:${ dockerRepo.tag }`;
+  let tag = `${ dockerRepo.region }-docker.pkg.dev/${ dockerRepo.project }/${ dockerRepo.repository }/${ dockerRepo.name }:${ dockerRepo.tag }`;
   return [{
     id: 'Docker Build (1/2)',
     name: 'gcr.io/cloud-builders/docker',
@@ -64,7 +64,7 @@ exports.deployRun = (serviceName, dockerRepo, config) => {
     name: 'gcr.io/cloud-builders/gcloud',
     args: [
       'run', 'deploy', serviceName,
-      '--image', `${ dockerRepo.region }-docker.pkg.dev/${ dockerRepo.projectId }/${ dockerRepo.repository }/${ dockerRepo.name }:${ dockerRepo.tag }`,
+      '--image', `${ dockerRepo.region }-docker.pkg.dev/${ dockerRepo.project }/${ dockerRepo.repository }/${ dockerRepo.name }:${ dockerRepo.tag }`,
       '--region',   config['region'],
       '--platform', config['platform'],
       '--port',     config['port'],
