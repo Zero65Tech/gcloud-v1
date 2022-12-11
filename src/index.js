@@ -34,7 +34,7 @@ app.post('/github-webhook', async (req, res) => {
   // TODO: process nested fields in build config
 
   const request = {
-    projectId: buildConfig.projectId,
+    projectId: buildConfig.project,
     build: {
       steps: BuildSteps.gitClonePrivate(`git@github.com:Zero65Tech/${ name }.git`)
         .concat(BuildSteps.artifactsNpm('@zero65', npmRepo))
