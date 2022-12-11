@@ -12,10 +12,6 @@ const BuildSteps = require('./build/steps');
 
 
 
-app.get('/', async (req, res) => {
-  res.send('Hello GCloud !');
-});
-
 app.post('/github-webhook', async (req, res) => {
 
   let commit = req.body.head_commit;
@@ -24,7 +20,7 @@ app.post('/github-webhook', async (req, res) => {
 
   let repository = req.body.repository;
   let name = repository.name;
-  if(!Config.run[name]) // TODO: Use build config instead
+  if(!Config.build[name]) // TODO: Use repo in build config instead
     return res.send('No action required !');
 
   let npmRepo     = { ...Config.artifacts.npm['default'],    ...(Config.artifacts.npm['@zero65'] || {}) };
@@ -40,7 +36,7 @@ app.post('/github-webhook', async (req, res) => {
   const request = {
     projectId: buildConfig.projectId,
     build: {
-      steps: BuildSteps.gitClonePrivate('git@github.com:Zero65Tech/gcloud.git')
+      steps: BuildSteps.gitClonePrivate(`git@github.com:Zero65Tech/${ name }.git`)
         .concat(BuildSteps.artifactsNpm('@zero65', npmRepo))
         .concat(BuildSteps.buildDocker(dockerRepo))
         .concat(BuildSteps.deployRun(name, dockerRepo, runConfig))
