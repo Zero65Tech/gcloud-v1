@@ -15,10 +15,10 @@ const gitRepoBuildConfigMap = Object.keys(Config.build).reduce((map, name) => {
   if(name == 'default')
     return map;
 
-  let config = { ...Config.build['default'], ...{} };
+  let config = JSON.parse(JSON.stringify(Config.build['default']));
   Object.keys(Config.build[name]).forEach(key => {
     let value = Config.build[name][key];
-    if((typeof value == 'object') && !(value instanceof Array))
+    if(config[key] && value && (typeof value == 'object') && !(value instanceof Array))
       config[key] = { ...config[key], ...value };
     else
       config[key] = value;
@@ -58,10 +58,10 @@ app.post('/github-webhook', async (req, res) => {
   dockerRepo.name = dockerRepo.name || name;
   dockerRepo.tag  = dockerRepo.tag  || commit.id;
 
-  for(let config in configs) {
+  for(let config of configs) {
 
     console.log(config);
-    
+
     const request = {
       projectId: config.project,
       build: {
