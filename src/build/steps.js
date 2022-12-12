@@ -75,39 +75,23 @@ exports.npmScripts = (config) => {
 
 }
 
-exports.artifactsNpm = (scope, registry) => {
-  return [{
-    id: 'Artifacts npm (1/2)',
-    name: 'gcr.io/cloud-builders/gcloud',
-    script: `
-      gcloud artifacts print-settings npm \
-        --project=${ config.project } \
-        --repository=${ config.repository } \
-        --location=${ config.region } \
-        --scope=${ scope } > .npmrc
-    `
-  },{
-    id: 'Artifacts npm (2/2)',
-    name: 'gcr.io/cloud-builders/npm',
-    script: `
-      npx google-artifactregistry-auth
-      echo "\n" >> .npmrc
-      cat ~/.npmrc >> .npmrc
-    `
-  }];
-}
+exports.docker = (config) => {
 
-exports.buildDocker = (dockerRepo) => {
-  let tag = `${ dockerRepo.region }-docker.pkg.dev/${ dockerRepo.project }/${ dockerRepo.repository }/${ dockerRepo.name }:${ dockerRepo.tag }`;
+  let registry = Config.artifacts.docker['default'];
+  if(Config.artifacts.docker[config.name])
+    registry = { ...registry, ...Config.artifacts.docker[config.name] };
+
+  let tag = `${ registry.region }-docker.pkg.dev/${ registry.project }/${ registry.repository }/${ config.name }:${ config.tag }`;
   return [{
-    id: 'Docker Build (1/2)',
+    id: 'Docker Build',
     name: 'gcr.io/cloud-builders/docker',
     args: [ 'build', '-t', tag, '-f', `Dockerfile`, '.' ]
-  },{
-    id: 'Docker Build (2/2)',
+  }, {
+    id: 'Docker Push',
     name: 'gcr.io/cloud-builders/docker',
     args: [ 'push', tag ]
   }];
+
 }
 
 exports.deployRun = (serviceName, dockerRepo, config) => {

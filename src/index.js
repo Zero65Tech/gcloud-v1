@@ -63,12 +63,13 @@ app.post('/github-webhook', async (req, res) => {
     let steps = BuildSteps.gitClonePrivate(config.git, 'SSH_KEY');
     if(config.npm)
       steps = steps.concat(BuildSteps.npmScripts(config.npm));
+    if(config.docker)
+      steps = steps.concat(BuildSteps.docker({ ...config.docker, ...{ tag: commit.id } }));
 
     const request = {
       projectId: config.project,
       build: {
         steps: steps
-          .concat(BuildSteps.buildDocker(dockerRepo))
           .concat(BuildSteps.deployRun(name, dockerRepo, runConfig))
         ,
         availableSecrets: {
