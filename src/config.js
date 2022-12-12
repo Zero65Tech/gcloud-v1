@@ -67,41 +67,44 @@ try {
   exports.build = {
 
     "default": {
-      project : "zero65",
-      ssh: 'projects/zero65/secrets/SSH_KEY/versions/latest',
-      git: { host: "github.com", org: "Zero65Tech", name: undefined, branch: "master" },
-      iam: undefined,
-      npm: {
-        builder: "node:18-slim",
-        scopes: [ "@zero65" ],
-        cmds: [ "install --omit=dev" ]
+      "project" : "zero65",
+      "ssh": "projects/zero65/secrets/SSH_KEY/versions/latest",
+      "git": { "host": "github.com", "owner": "Zero65Tech", "name": null, "branch": "master" },
+      "iam": null,
+      "npm": {
+        "builder": "node:18-slim",
+        "scopes": [ "@zero65" ],
+        "cmds": [ "install --omit=dev" ]
       },
-      docker: { file: "node-18-slim", name: undefined, tag: undefined },
-      deploy: [
-        { type: "run", name: undefined, auto: true }
+      "docker": { "file": "node-18-slim", "name": null, "tag": null },
+      "deploy": [
+        { "type": "run", "name": null, "auto": true }
       ]
     },
 
+
     "config": {
-      npm: { cmds: [ "publish --tag latest" ] },
-      docker: null, deploy: null
+      "npm": { "cmds": [ "publish --tag latest" ] },
+      "docker": null, "deploy": null
     },
 
     "utils-nodejs": {
-      npm: { cmds: [ "publish --tag latest" ] },
-      docker: null, deploy: null
+      "npm": { "cmds": [ "publish --tag latest" ] },
+      "docker": null, "deploy": null
     },
+
 
     "hello-nodejs": {},
 
     "hello-vuejs": {
-      npm: {
-        builder: "node:16-slim",
-        scopes: null,
-        cmds: [ "install", "run build" ]
+      "npm": {
+        "builder": "node:16-slim",
+        "scopes": null,
+        "cmds": [ "install", "run build" ]
       },
-      docker: { file: "nginx-stable" }
+      "docker": { "file": "nginx-stable" }
     },
+
 
     "gcloud": {}
 
