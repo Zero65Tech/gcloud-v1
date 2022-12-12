@@ -50,28 +50,28 @@ app.post('/github-webhook', async (req, res) => {
   if(!configs)
     return res.send('No action required !');
 
-  let name = req.body.repository.name;
-  let dockerRepo  = { ...Config.artifacts.docker['default'], ...(Config.artifacts.docker[name]   || {}) };
-  let runConfig   = { ...Config.run['default'],              ...(Config.run[name]                || {}) };
-  dockerRepo.name = dockerRepo.name || name;
-  dockerRepo.tag  = dockerRepo.tag  || commit.id;
-
   for(let config of configs) {
 
-    console.log(config);
-
     let steps = BuildSteps.gitClonePrivate(config.git, 'SSH_KEY');
+
     if(config.npm)
       steps = steps.concat(BuildSteps.npmScripts(config.npm));
+
     if(config.docker)
       steps = steps.concat(BuildSteps.docker({ ...config.docker, ...{ tag: commit.id } }));
+
+    if(config.deploy)
+      for(deployConfig of config.deploy) {
+        if(!deployConfig.auto)
+          break;
+        if(deployConfig.type == 'run')
+          steps.push(BuildSteps.deployRun(deployConfig, { ...config.docker, ...{ tag: commit.id } }));
+      }
 
     const request = {
       projectId: config.project,
       build: {
-        steps: steps
-          .concat(BuildSteps.deployRun(name, dockerRepo, runConfig))
-        ,
+        steps: steps,
         availableSecrets: {
           secretManager: [{
             versionName: config.ssh,

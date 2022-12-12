@@ -78,7 +78,7 @@ try {
       },
       "docker": { "file": "node-18-slim", "name": null, "tag": null },
       "deploy": [
-        { "type": "run", "name": null, "auto": true }
+        { "type": "run", "name": null, "auto": true, "overrides": {} }
       ]
     },
 

@@ -94,23 +94,36 @@ exports.docker = (config) => {
 
 }
 
-exports.deployRun = (serviceName, dockerRepo, config) => {
-  return [{
+exports.deployRun = (config, dockerConfig) => {
+
+  let service = Config.run['default'];
+  if(Config.run[config.name])
+    service = { ...service, ...Config.run[config.name] };
+
+  if(config.overrides)
+    service = { ...service, ...overrides };
+
+  let registry = Config.artifacts.docker['default'];
+  if(Config.artifacts.docker[dockerConfig.name])
+    registry = { ...registry, ...Config.artifacts.docker[dockerConfig.name] };
+
+  return {
     id: 'Run Deploy',
     name: 'gcr.io/cloud-builders/gcloud',
     args: [
-      'run', 'deploy', serviceName,
-      '--image', `${ dockerRepo.region }-docker.pkg.dev/${ dockerRepo.project }/${ dockerRepo.repository }/${ dockerRepo.name }:${ dockerRepo.tag }`,
-      '--region',   config['region'],
-      '--platform', config['platform'],
-      '--port',     config['port'],
-      '--memory',   config['memory'],
-      '--cpu',      config['cpu'],
-      '--timeout',       config['timeout'],
-      '--concurrency',   config['concurrency'],
-      '--min-instances', config['min-instances'],
-      '--max-instances', config['max-instances'],
-      '--service-account', config['service-account']
+      'run', 'deploy', service.name || config.name,
+      '--image', `${ registry.region }-docker.pkg.dev/${ registry.project }/${ registry.repository }/${ dockerConfig.name }:${ dockerConfig.tag }`,
+      '--region',   service['region'],
+      '--platform', service['platform'],
+      '--port',     service['port'],
+      '--memory',   service['memory'],
+      '--cpu',      service['cpu'],
+      '--timeout',       service['timeout'],
+      '--concurrency',   service['concurrency'],
+      '--min-instances', service['min-instances'],
+      '--max-instances', service['max-instances'],
+      '--service-account', service['service-account']
     ]
-  }];
+  };
+
 }
