@@ -106,7 +106,7 @@ try {
     },
 
 
-    "gcloud": {}
+    "gcloud": { "file": null }
 
   }
 

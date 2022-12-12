@@ -77,21 +77,35 @@ exports.npmScripts = (config) => {
 
 exports.docker = (config) => {
 
+  let steps = [];
+
+  if(config.file)
+    steps.push({
+      id: 'Dockerfile',
+      name: 'gcr.io/cloud-builders/curl',
+      args: [ '-o', 'Dockerfile', `https://gcloud.zero65.in/build/dockerfile/${ config.file }` ]
+    });
+
   let registry = Config.artifacts.docker['default'];
   if(Config.artifacts.docker[config.name])
     registry = { ...registry, ...Config.artifacts.docker[config.name] };
 
   let tag = `${ registry.region }-docker.pkg.dev/${ registry.project }/${ registry.repository }/${ config.name }:${ config.tag }`;
-  return [{
+
+  steps.push({
     id: 'Docker Build',
     name: 'gcr.io/cloud-builders/docker',
     args: [ 'build', '-t', tag, '-f', `Dockerfile`, '.' ]
-  }, {
+  });
+
+  steps.push({
     id: 'Docker Push',
     name: 'gcr.io/cloud-builders/docker',
     args: [ 'push', tag ]
-  }];
+  });
 
+  return steps;
+  
 }
 
 exports.deployRun = (config, dockerConfig) => {
