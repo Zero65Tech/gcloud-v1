@@ -105,7 +105,7 @@ exports.docker = (config) => {
   });
 
   return steps;
-  
+
 }
 
 exports.deployRun = (config, dockerConfig) => {
@@ -115,7 +115,7 @@ exports.deployRun = (config, dockerConfig) => {
     service = { ...service, ...Config.run[config.name] };
 
   if(config.overrides)
-    service = { ...service, ...overrides };
+    service = { ...service, ...config.overrides };
 
   let registry = Config.artifacts.docker['default'];
   if(Config.artifacts.docker[dockerConfig.name])
