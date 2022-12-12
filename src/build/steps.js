@@ -1,3 +1,7 @@
+const Config = require('../config');
+
+
+
 exports.gitClonePrivate = (repo, sshKeySecretEnv) => {
   return [{
     id: 'Git Clone Private (1/2)',
@@ -23,7 +27,55 @@ exports.gitClonePrivate = (repo, sshKeySecretEnv) => {
   }];
 }
 
-exports.artifactsNpm = (scope='@zero65', config) => {
+exports.npmScripts = (config) => {
+
+  let steps = [];
+
+  if(config.scopes) {
+
+    let script = '';
+
+    config.scopes.forEach(scope => {
+      let registry = Config.artifacts.npm['default'];
+      if(Config.artifacts.npm[scope])
+        registry = { ...registry, ...Config.artifacts.npm[scope] };
+      script += `
+        gcloud artifacts print-settings npm \
+          --project=${ registry.project } \
+          --repository=${ registry.repository } \
+          --location=${ registry.region } \
+          --scope=${ scope } >> .npmrc
+        echo "\n" >> .npmrc
+      `
+    });
+
+    steps.push({
+      id: 'Artifacts Registry (1/2)',
+      name: 'gcr.io/cloud-builders/gcloud',
+      script: script
+    });
+
+    steps.push({
+      id: 'Artifacts Registry (2/2)',
+      name: 'gcr.io/cloud-builders/npm',
+      script: 'npx google-artifactregistry-auth'
+    });
+
+  }
+
+  if(config.cmds) {
+    config.cmds.forEach(cmd => steps.push({
+      id: 'npm ' + cmd,
+      name: config.builder || 'gcr.io/cloud-builders/npm',
+      script: 'npm ' + cmd
+    }));
+  }
+
+  return steps;
+
+}
+
+exports.artifactsNpm = (scope, registry) => {
   return [{
     id: 'Artifacts npm (1/2)',
     name: 'gcr.io/cloud-builders/gcloud',
