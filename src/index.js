@@ -10,6 +10,8 @@ const CloudBuild = new CloudBuildClient();
 const BuildSteps = require('./build/steps');
 const Config = require('./config');
 
+
+
 const gitRepoBuildConfigMap = Object.keys(Config.build).reduce((map, name) => {
 
   if(name == 'default')
@@ -40,7 +42,9 @@ const gitRepoBuildConfigMap = Object.keys(Config.build).reduce((map, name) => {
 
 
 
-app.post('/github-webhook', async (req, res) => {
+app.use('/build/dockerfile', express.static(`${ __dirname }/build/dockerfile`));
+
+app.post('/build/github', async (req, res) => {
 
   let commit = req.body.head_commit;
   if(commit.author.email == 'google-cloud-build@zero65.in')
@@ -68,7 +72,7 @@ app.post('/github-webhook', async (req, res) => {
           steps.push(BuildSteps.deployRun(deployConfig, { ...config.docker, ...{ tag: commit.id } }));
       }
 
-    const request = {
+    await CloudBuild.createBuild({
       projectId: config.project,
       build: {
         steps: steps,
@@ -79,9 +83,7 @@ app.post('/github-webhook', async (req, res) => {
           }]
         }
       }
-    };
-
-    await CloudBuild.createBuild(request);
+    });
 
   }
 
