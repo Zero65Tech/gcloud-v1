@@ -50,8 +50,7 @@ app.post('/github-webhook', async (req, res) => {
   if(!configs)
     return res.send('No action required !');
 
-  let repository = req.body.repository;
-  let name = repository.name;
+  let name = req.body.repository.name;
   let npmRepo     = { ...Config.artifacts.npm['default'],    ...(Config.artifacts.npm['@zero65'] || {}) };
   let dockerRepo  = { ...Config.artifacts.docker['default'], ...(Config.artifacts.docker[name]   || {}) };
   let runConfig   = { ...Config.run['default'],              ...(Config.run[name]                || {}) };
@@ -62,17 +61,19 @@ app.post('/github-webhook', async (req, res) => {
 
     console.log(config);
 
+    let steps = BuildSteps.gitClonePrivate(config.git, 'SSH_KEY');
+
     const request = {
       projectId: config.project,
       build: {
-        steps: BuildSteps.gitClonePrivate(`git@github.com:Zero65Tech/${ name }.git`)
+        steps: steps
           .concat(BuildSteps.artifactsNpm('@zero65', npmRepo))
           .concat(BuildSteps.buildDocker(dockerRepo))
           .concat(BuildSteps.deployRun(name, dockerRepo, runConfig))
         ,
         availableSecrets: {
           secretManager: [{
-            versionName: 'projects/zero65/secrets/SSH_KEY/versions/latest',
+            versionName: config.ssh,
             env: 'SSH_KEY'
           }]
         }

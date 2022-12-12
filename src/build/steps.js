@@ -1,4 +1,4 @@
-exports.gitClonePrivate = (repositorySshUrl, sshKeySecretEnv='SSH_KEY', host='github.com') => {
+exports.gitClonePrivate = (repo, sshKeySecretEnv) => {
   return [{
     id: 'Git Clone Private (1/2)',
     name: 'gcr.io/cloud-builders/git',
@@ -6,7 +6,7 @@ exports.gitClonePrivate = (repositorySshUrl, sshKeySecretEnv='SSH_KEY', host='gi
     script: `
       echo "$${ sshKeySecretEnv }" > /root/.ssh/id_rsa
       chmod 400 /root/.ssh/id_rsa
-      ssh-keyscan -t rsa ${ host } > /root/.ssh/known_hosts
+      ssh-keyscan -t rsa ${ repo.host } > /root/.ssh/known_hosts
     `,
     volumes: [{
       name: 'ssh',
@@ -15,7 +15,7 @@ exports.gitClonePrivate = (repositorySshUrl, sshKeySecretEnv='SSH_KEY', host='gi
   },{
     id: 'Git Clone Private (2/2)',
     name: 'gcr.io/cloud-builders/git',
-    args: [ 'clone', '--depth', 1, '--single-branch', repositorySshUrl, '.' ],
+    args: [ 'clone', '--depth', 1, '--single-branch', `git@${ repo.host }:${ repo.owner }/${ repo.name }.git`, '.' ],
     volumes: [{
       name: 'ssh',
       path: '/root/.ssh'

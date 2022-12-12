@@ -1,6 +1,7 @@
 steps:
 
-- name: 'gcr.io/cloud-builders/gcloud'
+- id: 'Artifacts Registry'
+  name: 'gcr.io/cloud-builders/gcloud'
   script: |
     gcloud artifacts print-settings npm \
       --project=zero65 \
@@ -8,18 +9,22 @@ steps:
       --location=asia-southeast1 \
       --scope=@zero65 >> .npmrc
 
-- name: 'gcr.io/cloud-builders/npm'
+- id: 'Npm Install'
+  name: 'gcr.io/cloud-builders/npm'
   script: |
     npx google-artifactregistry-auth
     npm install --omit=dev
 
-- name: 'gcr.io/cloud-builders/docker'
+- id: 'Docker Build'
+  name: 'gcr.io/cloud-builders/docker'
   args: [ 'build', '-t', 'asia-southeast1-docker.pkg.dev/zero65/docker/gcloud:$COMMIT_SHA', '-f', 'Dockerfile', '.' ]
 
-- name: 'gcr.io/cloud-builders/docker'
+- id: 'Docker Push'
+  name: 'gcr.io/cloud-builders/docker'
   args: [ 'push', 'asia-southeast1-docker.pkg.dev/zero65/docker/gcloud:$COMMIT_SHA' ]
 
-- name: 'gcr.io/cloud-builders/gcloud'
+- id: 'Run Deploy'
+  name: 'gcr.io/cloud-builders/gcloud'
   args: [
     'run', 'deploy', 'gcloud',
     '--image', 'asia-southeast1-docker.pkg.dev/zero65/docker/gcloud:$COMMIT_SHA',
