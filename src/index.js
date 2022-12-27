@@ -58,6 +58,9 @@ app.post('/build/github', async (req, res) => {
 
     let steps = BuildSteps.gitClonePrivate(config.git, 'SSH_KEY');
 
+    if(config.auth)
+      steps.push(BuildSteps.auth(config.auth));
+
     if(config.npm)
       steps = steps.concat(BuildSteps.npmScripts(config.npm));
 

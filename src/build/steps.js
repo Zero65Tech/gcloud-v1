@@ -27,6 +27,14 @@ exports.gitClonePrivate = (repo, sshKeySecretEnv) => {
   }];
 }
 
+exports.auth = (serviceAccount) => {
+  return {
+    id: 'Identity Token',
+    name: 'gcr.io/cloud-builders/gcloud',
+    script: `gcloud auth print-identity-token --impersonate-service-account=${ serviceAccount } >> .auth`
+  }
+}
+
 exports.npmScripts = (config) => {
 
   let steps = [];

@@ -71,6 +71,7 @@ try {
       "ssh": "projects/zero65/secrets/SSH_KEY/versions/latest",
       "git": { "host": "github.com", "owner": "Zero65Tech", "name": null, "branch": "master" },
       "iam": null,
+      "auth": null,
       "npm": {
         "builder": "node:18-slim",
         "scopes": [ "@zero65" ],
