@@ -52,11 +52,11 @@ app.post('/build/github', async (req, res) => {
 
   let commit = req.body.head_commit;
   if(commit.author.email == 'google-cloud-build@zero65.in')
-    return res.send('No action required !');
+    return res.send('Ignoring as the commit is created by google-cloud-build@zero65.in !');
 
   let configs = gitRepoBuildConfigMap[`github.com/${ req.body.repository.owner.name }/${ req.body.repository.name }`];
   if(!configs)
-    return res.send('No action required !');
+    return res.send('No config found !');
 
   for(let config of configs) {
 
