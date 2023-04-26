@@ -42,6 +42,10 @@ const gitRepoBuildConfigMap = Object.keys(Config.build).reduce((map, name) => {
 
 
 
+app.get('/', async (req, res) => {
+  res.send('Hello World !');
+});
+
 app.use('/build/dockerfile', express.static(`${ __dirname }/build/dockerfile`));
 
 app.post('/build/github', async (req, res) => {
