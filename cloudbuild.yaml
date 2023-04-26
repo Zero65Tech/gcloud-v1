@@ -6,7 +6,7 @@ steps:
     gcloud artifacts print-settings npm \
       --project=zero65 \
       --repository=npm \
-      --location=us-central1 \
+      --location=asia-southeast1 \
       --scope=@zero65 >> .npmrc
 
 - id: 'Npm Install'
