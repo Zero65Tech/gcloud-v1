@@ -135,6 +135,7 @@ exports.deployRun = (config, dockerConfig) => {
     args: [
       'run', 'deploy', service.name || config.name,
       '--image', `${ registry.region }-docker.pkg.dev/${ registry.project }/${ registry.repository }/${ dockerConfig.name }:${ dockerConfig.tag }`,
+      '--project', config.project,
       '--region',   service['region'],
       '--platform', service['platform'],
       '--port',     service['port'],
