@@ -10,7 +10,7 @@ try {
 
     "default": {
       "project"    : "zero65",
-      "region"     : "asia-southeast1",
+      "region"     : "us-central1",
       "repository" : "npm"
     },
 
@@ -22,7 +22,7 @@ try {
 
     "default": {
       "project"    : "zero65",
-      "region"     : "asia-southeast1",
+      "region"     : "us-central1",
       "repository" : "docker"
     },
 
@@ -40,7 +40,7 @@ try {
 
       "project" : "zero65",
 
-      "region"   : "asia-southeast1",
+      "region"   : "us-central1",
       "platform" : "managed",
       "port"     : 8080,
       "memory"   : "128Mi",
@@ -70,7 +70,6 @@ try {
       "project" : "zero65",
       "ssh": "projects/zero65/secrets/SSH_KEY/versions/latest",
       "git": { "host": "github.com", "owner": "Zero65Tech", "name": null, "branch": "master" },
-      "iam": null,
       "auth": null,
       "npm": {
         "builder": "node:18-slim",
