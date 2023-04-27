@@ -130,7 +130,7 @@ exports.deployRun = (config, dockerConfig) => {
     registry = { ...registry, ...Config.artifacts.docker[dockerConfig.name] };
 
   return {
-    id: 'Run Deploy',
+    id: config.stage ? `Run Deploy (${ config.stage })` : 'Run Deploy',
     name: 'gcr.io/cloud-builders/gcloud',
     args: [
       'run', 'deploy', service.name || config.name,
