@@ -130,7 +130,7 @@ exports.deployRun = (config, dockerConfig) => {
     registry = { ...registry, ...Config.artifacts.docker[dockerConfig.name] };
 
   return {
-    id: config.cluster ? `Run Deploy (${ config.cluster })` : 'Run Deploy',
+    id: `Run Deploy ${ service['project'] }/${ service['region'] }`,
     name: 'gcr.io/cloud-builders/gcloud',
     args: [
       'run', 'deploy', service.name || config.name,
@@ -145,7 +145,7 @@ exports.deployRun = (config, dockerConfig) => {
       '--concurrency',   service['concurrency'],
       '--min-instances', service['min-instances'],
       '--max-instances', service['max-instances'],
-      '--set-env-vars',  `CLUSTER=${ config.cluster || 'default' }`,
+      '--set-env-vars',  `PROJECT=${ service['project'] }`,
       '--service-account', service['service-account'] + '@' + service['project'] + '.iam.gserviceaccount.com'
     ]
   };
