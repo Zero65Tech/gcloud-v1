@@ -23,11 +23,20 @@ steps:
   name: 'gcr.io/cloud-builders/docker'
   args: [ 'push', 'asia-south1-docker.pkg.dev/zero65/docker/gcloud:$COMMIT_SHA' ]
 
-- id: 'Run Deploy'
+- id: 'Run Deploy (Mum)'
   name: 'gcr.io/cloud-builders/gcloud'
   args: [
     'run', 'deploy', 'gcloud',
     '--image', 'asia-south1-docker.pkg.dev/zero65/docker/gcloud:$COMMIT_SHA',
     '--region', 'asia-south1',
+    '--platform', 'managed'
+  ]
+
+- id: 'Run Deploy (Iowa)'
+  name: 'gcr.io/cloud-builders/gcloud'
+  args: [
+    'run', 'deploy', 'gcloud',
+    '--image', 'asia-south1-docker.pkg.dev/zero65/docker/gcloud:$COMMIT_SHA',
+    '--region', 'us-central1',
     '--platform', 'managed'
   ]
