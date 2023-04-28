@@ -51,7 +51,7 @@ try {
       "min-instances" :  0,
       "max-instances" :  3,
 
-      "service-account" : "cloud-run@zero65.iam.gserviceaccount.com"
+      "service-account" : "cloud-run"
 
     },
 

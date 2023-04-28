@@ -145,7 +145,7 @@ exports.deployRun = (config, dockerConfig) => {
       '--concurrency',   service['concurrency'],
       '--min-instances', service['min-instances'],
       '--max-instances', service['max-instances'],
-      '--service-account', service['service-account']
+      '--service-account', service['service-account'] + '@' + service['project'] + '.iam.gserviceaccount.com'
     ]
   };
 
