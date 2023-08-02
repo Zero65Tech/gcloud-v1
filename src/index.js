@@ -2,6 +2,7 @@ const express = require('express');
 const app     = express();
 
 const { CloudBuildClient } = require('@google-cloud/cloudbuild').v1;
+const { Obj, File } = require('@zero65/utils');
 
 app.use(express.json());
 
@@ -17,34 +18,37 @@ const gitRepoBuildConfigMap = Object.keys(Config.build).reduce((map, name) => {
   if(name == 'default')
     return map;
 
-  let config = JSON.parse(JSON.stringify(Config.build['default']));
-  Object.keys(Config.build[name]).forEach(key => {
-    let value = Config.build[name][key];
+  let config = Obj.clone(Config.build['default']);
+  for(let [ key, value ] of Object.entries(Config.build[name])) {
     if(config[key] && value && (typeof value == 'object') && !(value instanceof Array))
       config[key] = { ...config[key], ...value };
     else
       config[key] = value;
-  });
+  }
 
   config.git.name = config.git.name || name;
+
   if(config.docker)
     config.docker.name = config.docker.name || name;
-  if(config.deploy)
-    config.deploy.forEach(obj => obj.name = obj.name || name);
+
+  if(config['deploy'])
+    config['deploy'].forEach(obj => obj.name = obj.name || name);
+  else
+    config['deploy'] = [];
+
+  if(config['deploy-test'])
+    config['deploy-test'].forEach(obj => obj.name = obj.name || name);
+  else
+    config['deploy-test'] = [];
 
   let gitRepo = `${ config.git.host }/${ config.git.owner }/${ config.git.name }`;
-  map[gitRepo] = map[gitRepo] || [];
-  map[gitRepo].push(config);
+  Obj.push(map, [ gitRepo ], config);
 
   return map;
 
 }, {});
 
 
-
-app.get('/', async (req, res) => {
-  res.send('Hello World !');
-});
 
 app.use('/build/dockerfile', express.static(`${ __dirname }/build/dockerfile`));
 
@@ -62,22 +66,20 @@ app.post('/build/github', async (req, res) => {
 
     let steps = BuildSteps.gitClonePrivate(config.git, 'SSH_KEY');
 
-    if(config.auth)
-      steps.push(BuildSteps.auth(config.auth));
-
     if(config.npm)
       steps = steps.concat(BuildSteps.npmScripts(config.npm));
 
     if(config.docker)
-      steps = steps.concat(BuildSteps.docker({ ...config.docker, ...{ tag: commit.id } }));
+      steps = steps.concat(BuildSteps.docker({ ...config.docker, tag: commit.id }));
 
-    if(config.deploy)
-      for(deployConfig of config.deploy) {
-        if(!deployConfig.auto)
-          break;
-        if(deployConfig.type == 'run')
-          steps.push(BuildSteps.deployRun(deployConfig, { ...config.docker, ...{ tag: commit.id } }));
-      }
+    let branch = req.body.ref.substring('refs/heads/'.length);
+    let deployConfigArr = branch == req.body.repository.master_branch ? config['deploy'] : config['deploy-test'];
+    for(deployConfig of deployConfigArr) {
+      if(!deployConfig.auto)
+        break;
+      if(deployConfig.type == 'run')
+        steps.push(BuildSteps.deployRun(deployConfig, { ...config.docker, tag: commit.id }));
+    }
 
     await CloudBuild.createBuild({
       projectId: config.project,
