@@ -62,9 +62,11 @@ app.post('/build/github', async (req, res) => {
   if(!configs)
     return res.send('No config found !');
 
+  let branch = req.body.ref.substring('refs/heads/'.length);
+
   for(let config of configs) {
 
-    let steps = BuildSteps.gitClonePrivate(config.git, 'SSH_KEY');
+    let steps = BuildSteps.gitClonePrivate({ ...config.git, branch: branch }, 'SSH_KEY');
 
     if(config.npm)
       steps = steps.concat(BuildSteps.npmScripts(config.npm));
@@ -72,7 +74,6 @@ app.post('/build/github', async (req, res) => {
     if(config.docker)
       steps = steps.concat(BuildSteps.docker({ ...config.docker, tag: commit.id }));
 
-    let branch = req.body.ref.substring('refs/heads/'.length);
     let deployConfigArr = branch == req.body.repository.master_branch ? config['deploy'] : config['deploy-test'];
     for(deployConfig of deployConfigArr) {
       if(!deployConfig.auto)

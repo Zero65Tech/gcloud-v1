@@ -19,7 +19,7 @@ exports.gitClonePrivate = (repo, sshKeySecretEnv) => {
   },{
     id: 'Git Clone Private (2/2)',
     name: 'gcr.io/cloud-builders/git',
-    args: [ 'clone', '--depth', 1, '--single-branch', `git@${ repo.host }:${ repo.owner }/${ repo.name }.git`, '.' ],
+    args: [ 'clone', '--branch', repo.branch, '--depth', 1, '--single-branch', `git@${ repo.host }:${ repo.owner }/${ repo.name }.git`, '.' ],
     volumes: [{
       name: 'ssh',
       path: '/root/.ssh'
