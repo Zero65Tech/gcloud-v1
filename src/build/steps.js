@@ -108,7 +108,7 @@ exports.docker = (config) => {
 
 }
 
-exports.deployRun = (config, dockerConfig) => {
+exports.deployRun = (config, dockerConfig, stage) => {
 
   let service = Config.run['default'];
   if(Config.run[config.name])
@@ -137,7 +137,7 @@ exports.deployRun = (config, dockerConfig) => {
       '--concurrency',   service['concurrency'],
       '--min-instances', service['min-instances'],
       '--max-instances', service['max-instances'],
-      '--set-env-vars',  `PROJECT=${ service['project'] }`,
+      '--set-env-vars',  `PROJECT=${ service['project'] },STAGE=${ stage }`,
       '--service-account', service['service-account'] + '@' + service['project'] + '.iam.gserviceaccount.com'
     ]
   };
